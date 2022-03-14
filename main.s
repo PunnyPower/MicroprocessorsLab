@@ -26,7 +26,10 @@ prev_b5:	ds 1
 prev_b6:	ds 1 
 prev_b7:	ds 1 
 prev_b8:	ds 1 
-    
+c1:	ds 1
+c2:	ds 1 
+c3:	ds 1 
+c4:	ds 1 
 psect	udata_bank4 ; reserve data anywhere in RAM (here at 0x400)
 myArray:    ds 0x80 ; reserve 128 bytes for message data
 
@@ -56,20 +59,28 @@ setup:	bcf	CFGS	; point to Flash program memory
 	movlw 0x00
 	movwf TRISD
 	movlw 0x00
+	movwf TRISH
 	movwf TRISJ
 	movff PORTE, WREG 
 	movwf prev_b
 	lfsr 0 , myArray 
-	movlw 40
+	movlw 8
 	movwf counter
+	movlw 0x0
+	movwf PORTD
+	movwf c1
+	movwf c2
+	movwf c3
+	movwf c4
 	goto main
 	
 	; ******* Main programme ****************************************
 main:
-    movlw 0
-    CPFSGT counter
-    call read_setup
-    call loop
+    call counter_code
+    ;movlw 0
+    ;CPFSGT counter
+    ;call read_setup
+    ;call loop
     bra main
 loop:
     	comf PORTE ,W 
@@ -78,10 +89,45 @@ loop:
 	call Button_check
 	movff b_hldr,prev_b
 	return
-
+	
+	
+counter_code:
+    movff c4,PORTH
+    movff c3,PORTJ
+    movlw 0xFF
+    INCF c1
+    CPFSEQ c1
+    bra counter_code
+    movlw 0x00
+    movwf c1
+    INCF c2
+    movlw 0xFF
+    CPFSEQ c2
+    bra counter_code
+    movlw 0x00
+    movwf c2
+    INCF c3	
+    movlw 0xFF
+    CPFSEQ c3
+    bra counter_code	
+    movlw 0x00
+    movwf c3
+    INCF c4	
+    movlw 0xFF
+    CPFSEQ c4
+    bra counter_code		
+    return
+	
+	
+	
+	
+	
+	
+	
+	
 read_setup:
     lfsr 1, myArray
-    movlw 40
+    movlw 8
     movwf counter
     call read
     return 
