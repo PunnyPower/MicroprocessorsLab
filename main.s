@@ -63,7 +63,7 @@ movwf check_hldr
 movlw 0
 cpfsgt check_hldr
 return
-call Store_Press
+movff check_hldr, PORTD
 return
 
 
