@@ -1,5 +1,6 @@
 	#include <xc.inc>
 psect	udata_acs   ; named variables in access ram
+prev_b: ds 1
 b_hldr:	ds 1
 b1:	ds 1
 b2:	ds 1 
@@ -9,14 +10,25 @@ b5:	ds 1
 b6:	ds 1 
 b7:	ds 1 
 b8:	ds 1 
-psect	code, abs
-	
-main:
-	org	0x0
-	goto	start
+check_hldr: ds 1
+prev_hldr: ds 1
+prev_b1:	ds 1
+prev_b2:	ds 1 
+prev_b3:	ds 1 
+prev_b4:	ds 1 
+prev_b5:	ds 1
+prev_b6:	ds 1 
+prev_b7:	ds 1 
+prev_b8:	ds 1 
 
-	org	0x100		    ; Main code starts here at address 0x100
-start:
+psect	udata_bank4 ; reserve data anywhere in RAM (here at 0x400)
+myArray:    ds 0x80 ; reserve 128 bytes for message data
+    
+psect	code, abs
+rst: 	org 0x0
+ 	goto	setup
+
+setup:
         banksel PADCFG1
         bsf REPU
         clrf LATE
@@ -26,11 +38,36 @@ start:
 	movlw 0x00
 	movwf TRISD
 	movff PORTE, WREG 
-	movwf PORTD	    
+	movwf prev_b
+	lfsr 0 , myArray 
+	goto main
 	
-loop:
+main:
     	comf PORTE ,W 
 	movwf b_hldr
+	call Button_check
+	movff b_hldr,prev_b
+	bra main
+	
+Store_Press:
+    movff check_hldr ,POSTINC0
+    return
+    
+Button_check:    
+movff prev_b , WREG
+andwf b_hldr ,W
+movwf check_hldr
+comf check_hldr ,W
+andwf b_hldr, W
+movwf check_hldr
+movlw 0
+cpfsgt check_hldr
+return
+call Store_Press
+return
+
+
+Button_Read:
 	movlw 00000001B
 	andwf b_hldr, W
 	movwf b1
@@ -55,7 +92,6 @@ loop:
 	movlw 10000000B
 	andwf b_hldr, W
 	movwf b8
-	movff b8,PORTD
-	bra 	loop		    ; Not yet finished goto start of loop again
+	return
 
 	end	main
