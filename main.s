@@ -5,7 +5,7 @@ extrn	LCD_Setup, LCD_Write_Message,LCD_delay_ms,LCD_Write_Hex,LCD_Shift
 	
 psect	udata_acs   ; reserve data space in access ram
 counter:    ds 1    ; reserve one byte for a counter variable
-delay_count:ds 1    ; reserve one byte for counter in the delay routine
+counter_hldr: ds 1
 prev_b: ds 1
 b_hldr:	ds 1
 b1:	ds 1
@@ -64,7 +64,7 @@ setup:	bcf	CFGS	; point to Flash program memory
 	movff PORTE, WREG 
 	movwf prev_b
 	lfsr 0 , myArray 
-	movlw 8
+	movlw 0
 	movwf counter
 	movlw 0x0
 	movwf PORTD
@@ -76,80 +76,100 @@ setup:	bcf	CFGS	; point to Flash program memory
 	
 	; ******* Main programme ****************************************
 main:
-    call counter_code
-    ;movlw 0
-    ;CPFSGT counter
-    ;call read_setup
-    ;call loop
+    movlw 00010000B
+    cpfseq c3
+    call Count_Up
+    cpfseq c3
+    call Write_loop
+    movlw 00001111B
+    cpfslt c3
+    call read_setup
+    
     bra main
-loop:
+    
+
+    ;call read_setup
+   
+Write_loop:
     	comf PORTE ,W 
 	movwf b_hldr
 	movff prev_b,WREG
 	call Button_check
 	movff b_hldr,prev_b
+	movlw 0xff
 	return
 	
+Count_Up_Setup:
+    movlw 0
+    movwf c1
+    movwf c2
+    movwf c3
+    movwf c4
 	
-counter_code:
+Count_Up:
     movff c4,PORTH
     movff c3,PORTJ
-    movlw 0xFF
-    INCF c1
-    CPFSEQ c1
-    bra counter_code
-    movlw 0x00
+    movlw 0xff
+    incf c1
+    cpfseq c1
+    return
+    call Count_Up_2
+    movlw 0
     movwf c1
-    INCF c2
-    movlw 0xFF
-    CPFSEQ c2
-    bra counter_code
-    movlw 0x00
-    movwf c2
-    INCF c3	
-    movlw 0xFF
-    CPFSEQ c3
-    bra counter_code	
-    movlw 0x00
-    movwf c3
-    INCF c4	
-    movlw 0xFF
-    CPFSEQ c4
-    bra counter_code		
     return
 	
-	
-	
-	
-	
-	
-	
-	
+Count_Up_2:	
+    movlw 0xff
+    incf c2
+    cpfseq c2
+    return
+    call Count_Up_3
+    movlw 0
+    movwf c2
+    return
+Count_Up_3:	
+    movlw 0xff
+    incf c3
+    cpfseq c3
+    return
+    call Count_Up_4
+    movlw 0
+    movwf c3
+    return
+Count_Up_4:	
+    movlw 0xff
+    incf c4
+    cpfseq c4
+    return
+    movlw 0
+    movwf c4
+    return
+    
+    
 read_setup:
     lfsr 1, myArray
-    movlw 8
-    movwf counter
+    movff counter, counter_hldr
     call read
     return 
 read:
     movlw 0 
-    CPFSGT counter
-    goto endloop
     call read_Loop
+    cpfsgt counter_hldr
+    goto $
     bra read
 read_Loop:
-    movlw 1000
-    call    LCD_delay_ms
-    call    LCD_delay_ms
-    call    LCD_delay_ms
     movff POSTINC1,PORTD
-    decf    counter
+    
+    decf    counter_hldr
     return
     
 endloop:
     bra endloop
 Store_Press:
     movff check_hldr ,POSTINC0
+    movff c3,POSTINC0
+    movff c2,POSTINC0
+    incf counter
     return
     
 test:
@@ -169,7 +189,6 @@ movff check_hldr,WREG
 movff check_hldr,PORTD
 call LCD_Write_Hex
 call Store_Press
-DECF counter
 return
 
 
@@ -200,9 +219,6 @@ Button_Read:
 	movwf b8
 	return
 
-	; a delay subroutine if you need one, times around loop in delay_count
-delay:	decfsz	delay_count, A	; decrement until zero
-	bra	delay
-	return
+
 
 	end	rst
