@@ -6,6 +6,14 @@ extrn	LCD_Setup, LCD_Write_Message,LCD_delay_ms,LCD_Write_Hex,LCD_Shift
 psect	udata_acs   ; reserve data space in access ram
 counter:    ds 1    ; reserve one byte for a counter variable
 counter_hldr: ds 1
+read_b:	ds 1
+read_c3: ds 1
+read_c2: ds 1
+end_c3: ds 1
+end_c2: ds 1
+count_over: ds 1
+prev_read_c3: ds 1
+prev_read_c2: ds 1
 prev_b: ds 1
 b_hldr:	ds 1
 b1:	ds 1
@@ -72,24 +80,67 @@ setup:	bcf	CFGS	; point to Flash program memory
 	movwf c2
 	movwf c3
 	movwf c4
+	movwf prev_read_c2
+	movwf prev_read_c3
+	movwf count_over
+	movlw 00110001B
+	movwf end_c2
+	movlw 01001000B
+	movwf end_c3 
 	goto main
 	
 	; ******* Main programme ****************************************
 main:
-    movlw 00010000B
-    cpfseq c3
-    call Count_Up
-    cpfseq c3
-    call Write_loop
-    movlw 00001111B
-    cpfslt c3
-    call read_setup
+    call timer_check_loop
+    ;movlw 00010000B
+    ;cpfseq c3
+    ;call Count_Up
+    ;cpfseq c3
+    ;call Write_loop
+    ;movlw 00001111B
+    ;cpfslt c3
+    ;call read_setup
     
-    bra main
+    movlw 01001111B
+    movwf PORTD
+    goto $
     
 
     ;call read_setup
-   
+
+timer_check_loop:
+    movlw 0xff
+    call    timer_check_1
+    movff c2,PORTD
+    cpfslt count_over
+    bra	    timer_check_loop
+    return
+
+timer_check_1:
+    movff end_c2, WREG
+    cpfseq c2 
+    call Count_Up
+    cpfseq c2
+    call Write_loop
+    cpfseq c2
+    return
+    call timer_check_2
+    return
+ 
+timer_check_2:
+    movff end_c3, WREG
+    cpfseq c3 
+    call Count_Up
+    cpfseq c3
+    call Write_loop
+    cpfseq c3 
+    return
+    movlw 0x0f
+    movwf count_over
+    return
+    
+    
+    
 Write_loop:
     	comf PORTE ,W 
 	movwf b_hldr
@@ -107,8 +158,8 @@ Count_Up_Setup:
     movwf c4
 	
 Count_Up:
-    movff c4,PORTH
-    movff c3,PORTJ
+    movff c3,PORTH
+    movff c2,PORTJ
     movlw 0xff
     incf c1
     cpfseq c1
@@ -158,7 +209,9 @@ read:
     goto $
     bra read
 read_Loop:
-    movff POSTINC1,PORTD
+    movff POSTINC1,read_b
+    movff POSTINC1,read_c3
+    movff POSTINC1,read_c2
     
     decf    counter_hldr
     return
