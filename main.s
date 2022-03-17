@@ -12,6 +12,7 @@ read_c2: ds 1
 end_c3: ds 1
 end_c2: ds 1
 count_over: ds 1
+count_over_read:ds 1
 prev_read_c3: ds 1
 prev_read_c2: ds 1
 prev_b: ds 1
@@ -83,34 +84,32 @@ setup:	bcf	CFGS	; point to Flash program memory
 	movwf prev_read_c2
 	movwf prev_read_c3
 	movwf count_over
+	movwf count_over_read
 	movlw 00110001B
 	movwf end_c2
-	movlw 01101000B
+	movlw 00011000B
 	movwf end_c3 
 	goto main
 	
 	; ******* Main programme ****************************************
 main:
-    call timer_check_loop
-    
-    movlw 01001111B
-    movwf PORTD
+    call timer_check_loop_write
+    call read_setup
     goto $
     
 
     ;call read_setup
 
-timer_check_loop:
+timer_check_loop_write:
     movlw 0xff
     cpfseq count_over 
-    call    timer_check_1
-    movff c2,PORTD
+    call    timer_check_1_write
     movlw 0xff
     cpfseq count_over 
-    bra	    timer_check_loop
+    bra	    timer_check_loop_write
     return
 
-timer_check_1:
+timer_check_1_write:
     movff end_c2, WREG
     cpfseq c2 
     call Count_Up
@@ -120,10 +119,10 @@ timer_check_1:
     movff end_c2, WREG
     cpfseq c2
     return
-    call timer_check_2
+    call timer_check_2_write
     return
  
-timer_check_2:
+timer_check_2_write:
     movff end_c3, WREG
     cpfseq c3 
     call Count_Up
@@ -134,15 +133,16 @@ timer_check_2:
     cpfseq c3 
     return
     
-    call timer_check_3
+    call timer_check_3_write
     return
     
- timer_check_3:   
+ timer_check_3_write:   
     movlw 0xff
     movwf count_over
     return
     
-    
+ 
+ 
     
 Write_loop:
     	comf PORTE ,W 
@@ -199,6 +199,44 @@ Count_Up_4:
     movwf c4
     return
     
+ timer_check_loop_read:
+    movlw 0xff
+    cpfseq count_over_read 
+    call    timer_check_1_read
+    movlw 0xff
+    cpfseq count_over_read 
+    bra	    timer_check_loop_read
+    return
+
+timer_check_1_read:
+    movff end_c2, WREG
+    cpfseq c2 
+    call Count_Up
+
+    movff end_c2, WREG
+    cpfseq c2
+    return
+    call timer_check_2_read
+    return
+ 
+timer_check_2_read:
+    movff end_c3, WREG
+    cpfseq c3 
+    call Count_Up
+    movff end_c3, WREG
+    cpfseq c3 
+    return
+    
+    call timer_check_3_read
+    return
+    
+ timer_check_3_read:   
+    movlw 0xff
+    movwf count_over_read
+    return
+    
+    
+    
     
 read_setup:
     lfsr 1, myArray
@@ -215,7 +253,19 @@ read_Loop:
     movff POSTINC1,read_b
     movff POSTINC1,read_c3
     movff POSTINC1,read_c2
-    
+    movff prev_read_c2 ,WREG
+    subwf read_c2, f
+    movff prev_read_c3,WREG
+    subwf read_c3, f
+    movff read_c2,end_c2
+    movff read_c3,end_c3
+    call Count_Up_Setup
+    call    timer_check_loop_read
+    movff read_b , PORTD
+    movlw 0
+    movwf count_over_read
+    movff read_c3,prev_read_c3
+    movff read_c2,prev_read_c2
     decf    counter_hldr
     return
     
