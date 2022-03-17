@@ -85,21 +85,13 @@ setup:	bcf	CFGS	; point to Flash program memory
 	movwf count_over
 	movlw 00110001B
 	movwf end_c2
-	movlw 01001000B
+	movlw 01101000B
 	movwf end_c3 
 	goto main
 	
 	; ******* Main programme ****************************************
 main:
     call timer_check_loop
-    ;movlw 00010000B
-    ;cpfseq c3
-    ;call Count_Up
-    ;cpfseq c3
-    ;call Write_loop
-    ;movlw 00001111B
-    ;cpfslt c3
-    ;call read_setup
     
     movlw 01001111B
     movwf PORTD
@@ -110,9 +102,11 @@ main:
 
 timer_check_loop:
     movlw 0xff
+    cpfseq count_over 
     call    timer_check_1
     movff c2,PORTD
-    cpfslt count_over
+    movlw 0xff
+    cpfseq count_over 
     bra	    timer_check_loop
     return
 
@@ -120,8 +114,10 @@ timer_check_1:
     movff end_c2, WREG
     cpfseq c2 
     call Count_Up
+    movff end_c2, WREG
     cpfseq c2
     call Write_loop
+    movff end_c2, WREG
     cpfseq c2
     return
     call timer_check_2
@@ -131,11 +127,18 @@ timer_check_2:
     movff end_c3, WREG
     cpfseq c3 
     call Count_Up
+    movff end_c3, WREG
     cpfseq c3
     call Write_loop
+    movff end_c3, WREG
     cpfseq c3 
     return
-    movlw 0x0f
+    
+    call timer_check_3
+    return
+    
+ timer_check_3:   
+    movlw 0xff
     movwf count_over
     return
     
