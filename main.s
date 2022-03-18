@@ -103,8 +103,14 @@ main:
     movff b3,PORTH
     movff b4,PORTJ
     movlw 1
+    cpfslt b8
+    call make_sound_1
     cpfslt b7
-    call make_sound
+    call make_sound_2
+    cpfslt b6
+    call make_sound_3
+    cpfslt b5
+    call make_sound_4
     movlw 1
     ;cpfslt b3
     ;call read_setup
@@ -112,11 +118,50 @@ main:
     
 
     ;call read_setup
-make_sound:
+make_sound_1:
     movff b_hldr,PORTD
     movlw 0x99
     call UART_Transmit_Byte
     movlw 44
+    call UART_Transmit_Byte
+    movlw 120
+    call UART_Transmit_Byte
+    movlw 1000
+    call LCD_delay_ms
+    movlw 0x89
+    call UART_Transmit_Byte
+    return
+    make_sound_2:
+    movff b_hldr,PORTD
+    movlw 0x99
+    call UART_Transmit_Byte
+    movlw 43
+    call UART_Transmit_Byte
+    movlw 120
+    call UART_Transmit_Byte
+    movlw 1000
+    call LCD_delay_ms
+    movlw 0x89
+    call UART_Transmit_Byte
+    return
+    make_sound_3:
+    movff b_hldr,PORTD
+    movlw 0x99
+    call UART_Transmit_Byte
+    movlw 41
+    call UART_Transmit_Byte
+    movlw 120
+    call UART_Transmit_Byte
+    movlw 1000
+    call LCD_delay_ms
+    movlw 0x89
+    call UART_Transmit_Byte
+    return
+    make_sound_4:
+    movff b_hldr,PORTD
+    movlw 0x99
+    call UART_Transmit_Byte
+    movlw 49
     call UART_Transmit_Byte
     movlw 120
     call UART_Transmit_Byte
