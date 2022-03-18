@@ -11,6 +11,8 @@ read_c3: ds 1
 read_c2: ds 1
 end_c3: ds 1
 end_c2: ds 1
+end_c3_write: ds 1
+end_c2_write: ds 1
 count_over: ds 1
 count_over_read:ds 1
 prev_read_c3: ds 1
@@ -67,7 +69,6 @@ setup:	bcf	CFGS	; point to Flash program memory
 	movwf TRISE
 	movlw 0x00
 	movwf TRISD
-	movlw 0x00
 	movwf TRISH
 	movwf TRISJ
 	movff PORTE, WREG 
@@ -86,16 +87,28 @@ setup:	bcf	CFGS	; point to Flash program memory
 	movwf count_over
 	movwf count_over_read
 	movlw 00110001B
+	movwf end_c2_write 
+	movlw 00011000B
+	movwf end_c3_write 
 	movwf end_c2
 	movlw 00011000B
 	movwf end_c3 
+	movlw 1000
+	call LCD_delay_ms
 	goto main
 	
 	; ******* Main programme ****************************************
 main:
+    call Button_Read
+    movff b3,PORTH
+    movff b4,PORTJ
+    movlw 1
+    cpfslt b4
     call timer_check_loop_write
+    movlw 1
+    cpfslt b3
     call read_setup
-    goto $
+    bra main
     
 
     ;call read_setup
@@ -110,26 +123,26 @@ timer_check_loop_write:
     return
 
 timer_check_1_write:
-    movff end_c2, WREG
+    movff end_c2_write, WREG
     cpfseq c2 
     call Count_Up
-    movff end_c2, WREG
+    movff end_c2_write, WREG
     cpfseq c2
     call Write_loop
-    movff end_c2, WREG
+    movff end_c2_write, WREG
     cpfseq c2
     return
     call timer_check_2_write
     return
  
 timer_check_2_write:
-    movff end_c3, WREG
+    movff end_c3_write, WREG
     cpfseq c3 
     call Count_Up
-    movff end_c3, WREG
+    movff end_c3_write, WREG
     cpfseq c3
     call Write_loop
-    movff end_c3, WREG
+    movff end_c3_write, WREG
     cpfseq c3 
     return
     
@@ -241,13 +254,19 @@ timer_check_2_read:
 read_setup:
     lfsr 1, myArray
     movff counter, counter_hldr
+    movlw 0
+    movwf end_c2
+    movwf end_c3
+    movwf prev_read_c2
+    movwf prev_read_c3
     call read
+    bra read_setup
     return 
 read:
     movlw 0 
     call read_Loop
     cpfsgt counter_hldr
-    goto $
+    return
     bra read
 read_Loop:
     movff POSTINC1,read_b
@@ -299,6 +318,8 @@ return
 
 
 Button_Read:
+        comf PORTE ,W 
+	movwf b_hldr
 	movlw 00000001B
 	andwf b_hldr, W
 	movwf b1
