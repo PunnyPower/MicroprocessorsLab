@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-extrn	UART_Setup, UART_Transmit_Message  ; external subroutines
+extrn	UART_Setup, UART_Transmit_Message,UART_Transmit_Byte  ; external subroutines
 extrn	LCD_Setup, LCD_Write_Message,LCD_delay_ms,LCD_Write_Hex,LCD_Shift
 	
 psect	udata_acs   ; reserve data space in access ram
@@ -103,16 +103,28 @@ main:
     movff b3,PORTH
     movff b4,PORTJ
     movlw 1
-    cpfslt b4
-    call timer_check_loop_write
+    cpfslt b7
+    call make_sound
     movlw 1
-    cpfslt b3
-    call read_setup
+    ;cpfslt b3
+    ;call read_setup
     bra main
     
 
     ;call read_setup
-
+make_sound:
+    movff b_hldr,PORTD
+    movlw 0x99
+    call UART_Transmit_Byte
+    movlw 44
+    call UART_Transmit_Byte
+    movlw 120
+    call UART_Transmit_Byte
+    movlw 1000
+    call LCD_delay_ms
+    movlw 0x89
+    call UART_Transmit_Byte
+    return
 timer_check_loop_write:
     movlw 0xff
     cpfseq count_over 
@@ -280,6 +292,7 @@ read_Loop:
     movff read_c3,end_c3
     call Count_Up_Setup
     call    timer_check_loop_read
+    
     movff read_b , PORTD
     movlw 0
     movwf count_over_read
