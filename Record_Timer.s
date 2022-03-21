@@ -19,14 +19,17 @@ Record_Int_Hi:; load end number into working function
 	retfie	f		; if not then return
 	call Count_Up
 	call	Check_End
-	movff c3,PORTH
-	movff c2,PORTJ
+	;movff c3,PORTH
+	;movff c2,PORTJ
 	movff c3,0x102
-	movff c2,0x103         ; moves c2,c3 to ports so they can be read by the other modules 
+	movff c2,0x103         ; moves c2,c3 to ports so they can be 
+				;read by the other modules 
 	bcf	TMR2IF		; clear interrupt flag
 	retfie	f		; fast return from interrupt
 
 Record_Timer_Setup:
+	movff 0x203,end_c3
+	movff 0x202,end_c2 ; record for only aprox 5 seconds
 	movlw	0xA0
 	movwf PR2
 	movlw	00000100B	; Set timer2 to 16-bit, Fosc/4
@@ -37,8 +40,7 @@ Record_Timer_Setup:
 	bsf	GIE		; Enable all interrupts
 	bsf TMR2IP ; place TMR2 interrupt at high priority
 	bcf TMR2IF ; 
-	movff 0x104,end_c3
-	movff 0x105,end_c2 ; record for only aprox 5 seconds 
+	call Record_Count_Up_Setup
 	return
 Stop_Timer:
     clrf	T2CON, A	; =  approx 10 microsec rollover   

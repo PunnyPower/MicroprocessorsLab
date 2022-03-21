@@ -16,6 +16,7 @@
       <itemPath>main.s</itemPath>
       <itemPath>Record_Timer.s</itemPath>
       <itemPath>Record_Input.s</itemPath>
+      <itemPath>Record_Output.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
