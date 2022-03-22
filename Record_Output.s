@@ -20,27 +20,28 @@ psect	Record_Input_code, class=CODE
 
 Record_Output_Setup:
     lfsr 1, 0x400
-    ;movff 0x11F, Beat_Length
-    movlw 5
-    movwf Beat_Length
     movlw 0
     movlw prev_c3_hldr
     movlw prev_c2_hldr
-    movlw 10
-    movwf end_c3
-    movlw 0
-    movwf end_c2
     call Read
     return
     
 Read:
-    movff end_c3, PORTD
+    movff POSTINC1,b_hldr
+    movff POSTINC1,c3_hldr
+    movff POSTINC1,c2_hldr
+    movf prev_c3_hldr,W
+    subwf c3_hldr,W
+    movwf end_c3
+    movf prev_c2_hldr,W ; subtraction function is not very accuratew need to
+			; impliment a 16 bit subraction function 
+    subwf c2_hldr,W
+    movwf end_c2
     call Record_Timer_Setup ; starts counting 
     call Read_Loop	    ; initiates the check functions 
-    ;movff Beat_Length,PORTD ; outputs results at correct time 
+    movff b_hldr,PORTD ; outputs results at correct time 
     dcfsnz Beat_Length
     return
-    incf end_c3
     bra Read
     
 Read_Loop:

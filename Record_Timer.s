@@ -23,8 +23,6 @@ Record_Int_Hi:; load end number into working function
 	call	Check_End
 	movff c3,PORTH
 	movff c2,PORTJ
-	movff c3,0x102
-	movff c2,0x103         ; moves c2,c3 to ports so they can be 
 				;read by the other modules 
 	bcf	TMR2IF		; clear interrupt flag
 	retfie	f		; fast return from interrupt

@@ -16,10 +16,6 @@ setup:
 	banksel PADCFG1
         bsf REPU
         clrf LATE
-	clrf 0x102
-	clrf 0x103
-	clrf 0x114
-	clrf 0x115
         banksel	0  ;sets up port E pull up resistors 
 	clrf	TRISH, A	; Set PORTH as all outputs
 	clrf	LATH, A		; Clear PORTH outputs
@@ -27,12 +23,12 @@ setup:
 	clrf	LATJ, A		; Clear PORTJ outputs
 	clrf	TRISD, A	; Set PORTD as all outputs
 	clrf	LATD, A		; Clear PORTD outputs
-	;call	Record_Count_Up_Setup
+	
 
 
 start:	
-	;call Record_Beat_Setup
-	call Record_Output_Setup
+	call Record_Beat_Setup
+	;call Record_Output_Setup
 	goto $	; Sit in infinite loop
 
 	end	rst
