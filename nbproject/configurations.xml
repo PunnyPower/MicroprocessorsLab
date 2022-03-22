@@ -17,6 +17,9 @@
       <itemPath>Record_Timer.s</itemPath>
       <itemPath>Record_Input.s</itemPath>
       <itemPath>Record_Output.s</itemPath>
+      <itemPath>Button_Interupt.s</itemPath>
+      <itemPath>UART.s</itemPath>
+      <itemPath>Delay.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
