@@ -2,6 +2,7 @@
 
 extrn	Record_Timer_Setup, Record_Int_Hi,Record_Count_Up_Setup ; timer modules
 extrn   Record_Beat_Setup ; record beat modules 
+extrn	Record_Output_Setup
 
 psect	code, abs
 rst:	org	0x0000	; reset vector
@@ -30,7 +31,8 @@ setup:
 
 
 start:	
-	call Record_Beat_Setup
+	;call Record_Beat_Setup
+	call Record_Output_Setup
 	goto $	; Sit in infinite loop
 
 	end	rst
