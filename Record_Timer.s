@@ -17,29 +17,32 @@ Count_Over:   ds 1
 psect	Record_Timer_code, class=CODE
 	
 Record_Int_Low:; load end number into working function	
-	btfss	TMR2IF		; check that this is timer0 interrupt
-	retfie	f		; if not then return
+	btfss	TMR2IF		; check that this is timer2 interrupt
+	return		; if not then return
 	call Count_Up
 	call	Check_End
 	movff c3,PORTH
 	movff c2,PORTJ
 				;read by the other modules 
 	bcf	TMR2IF		; clear interrupt flag
-	retfie	f		; fast return from interrupt
+	return		; fast return from interrupt
 
 Record_Timer_Setup:
 	movlw 0x00
 	movwf Count_Over
 	movlw	0xA0
 	movwf PR2
+	; =  approx 10 microsec rollover
 	movlw	00000100B	; Set timer2 to 16-bit, Fosc/4
 	movwf	T2CON, A	; =  approx 10 microsec rollover
 	movlw 0xC0
 	movwf INTCON,A ;g p enable global interrupt
 	bsf	TMR2IE		; Enable timer2 interrupt
 	bsf	GIE		; Enable all interrupts
-	bsf TMR2IP ; place TMR2 interrupt at high priority
-	bcf TMR2IF ; 
+	bcf TMR2IP ; place TMR2 interrupt at high priority
+	bcf TMR2IF ;
+	bsf IPEN
+ 
 	call Record_Count_Up_Setup
 	return
 Stop_Timer:

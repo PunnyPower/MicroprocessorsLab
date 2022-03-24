@@ -17,8 +17,8 @@ b8:	ds 1
 psect	Button_Interupt_code, class=CODE
 	
 B_Int_Hi:; load end number into working function	
-	;btfss	INT1IF		; check that this is timer0 interrupt
-	;retfie	f		; if not then return
+	btfss	INT1IF		; check that this is timer0 interrupt
+	return  		; if not then return
 	incf PORTD
 	call Read_input
 	call Button_Read
@@ -26,19 +26,18 @@ B_Int_Hi:; load end number into working function
 				;read by the other modules 
 
 	bcf	INT1IF		; clear interrupt flag
-	retfie	f		; fast return from interrupt
+	return		; fast return from interrupt
 
 Button_Int_Setup:
-	movlw 01001000B
-	movwf INTCON3,A 
-	movlw 00000000B
-	movwf INTCON2,A 
+	bsf	GIEH
+	bsf INT1IP
+	bsf INT1IE
+	bcf INTEDG1
 	bsf	GIE		; Enable all interrupts
 	return
 Read_input:
     comf PORTE,W
     movwf b_hldr
-    movwf PORTJ
 
 Button_Read:
 	movlw 00000001B

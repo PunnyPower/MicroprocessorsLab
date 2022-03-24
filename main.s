@@ -11,10 +11,11 @@ rst:	org	0x0000	; reset vector
 	goto	setup
 
 int_hi:	org	0x0008	; high vector, no low vector
-	;goto	Record_Int_Hi
-	goto	B_Int_Hi
-int_low:	org	0x0018	;   low vector
-	goto	Record_Int_Low
+	call	B_Int_Hi
+	retfie f
+int_low: org	0x0018	; high vector, no low vector
+	call	Record_Int_Low
+	retfie f
 setup:
 	bcf	CFGS	; point to Flash program memory  
 	bsf	EEPGD 	; access Flash program memory
@@ -24,7 +25,7 @@ setup:
         clrf LATE
           ;sets up port E pull up resistors 
 	banksel INTCON2
-	bsf RBPU
+	bcf RBPU
 	clrf LATB  
 	movlw 0xCF
 	movwf TRISB,A
@@ -36,14 +37,15 @@ setup:
 	clrf	LATJ, A		; Clear PORTJ outputs
 	clrf	TRISD, A	; Set PORTD as all outputs
 	clrf	LATD, A		; Clear PORTD outputs
+	call Button_Int_Setup
 	
 	
 
 
 start:	
-	;call Record_Beat_Setup
+	call Record_Beat_Setup
 	;call Record_Output_Setup
-	call Button_Int_Setup
+	
 	
 	goto $	; Sit in infinite loop
 
