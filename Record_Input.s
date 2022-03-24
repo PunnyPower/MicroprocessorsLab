@@ -65,8 +65,8 @@ Unique_Input_Check:    ; uses an algorithum to check for unique button presses
 Record_Beat:
     comf PORTE,W
     movwf b_hldr
-    movlw 0xF0
-    andwf b_hldr,F ; only uses top 4 buttons for beat  
+    movlw 0x0F
+    andwf b_hldr,F ; only uses bottom 4 buttons for beat  
     
    
     movf prev_b ,W

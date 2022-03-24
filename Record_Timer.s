@@ -1,6 +1,6 @@
 #include <xc.inc>
 	
-global	Record_Timer_Setup, Record_Int_Hi,Record_Count_Up_Setup,Stop_Timer
+global	Record_Timer_Setup, Record_Int_Low,Record_Count_Up_Setup,Stop_Timer
 global	c1,c2,c3,c4,end_c2,end_c3,Count_Over
 
 psect	udata_acs   ; reserve data space in access ram
@@ -16,7 +16,7 @@ Count_Over:   ds 1
 	
 psect	Record_Timer_code, class=CODE
 	
-Record_Int_Hi:; load end number into working function	
+Record_Int_Low:; load end number into working function	
 	btfss	TMR2IF		; check that this is timer0 interrupt
 	retfie	f		; if not then return
 	call Count_Up

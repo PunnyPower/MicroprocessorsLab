@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-extrn	Record_Timer_Setup, Record_Int_Hi,Record_Count_Up_Setup ; timer modules
+extrn	Record_Timer_Setup, Record_Int_Low,Record_Count_Up_Setup ; timer modules
 extrn   Record_Beat_Setup ; record beat modules 
 extrn	Record_Output_Setup
 extrn   Button_Int_Setup,B_Int_Hi
@@ -13,6 +13,8 @@ rst:	org	0x0000	; reset vector
 int_hi:	org	0x0008	; high vector, no low vector
 	;goto	Record_Int_Hi
 	goto	B_Int_Hi
+int_low:	org	0x0018	;   low vector
+	goto	Record_Int_Low
 setup:
 	bcf	CFGS	; point to Flash program memory  
 	bsf	EEPGD 	; access Flash program memory
