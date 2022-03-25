@@ -5,6 +5,7 @@ extrn   Record_Beat_Setup ; record beat modules
 extrn	Record_Output_Setup
 extrn   Button_Int_Setup,B_Int_Hi
 extrn	UART_Setup, UART_Transmit_Byte
+extrn   delay_ms
 
 psect	code, abs
 rst:	org	0x0000	; reset vector
@@ -43,10 +44,9 @@ setup:
 
 
 start:	
-	call Record_Beat_Setup
-	;call Record_Output_Setup
-	
-	
+    ;call Record_Beat_Setup
+    ;call Record_Output_Setup
+    bra start
 	goto $	; Sit in infinite loop
 
 	end	rst

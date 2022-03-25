@@ -2,6 +2,7 @@
 global Button_Int_Setup,B_Int_Hi
 extrn  UART_Transmit_Byte
 extrn  delay_ms
+extrn  Record_Beat_Setup,Record_Output_Setup
 
 psect	udata_acs   ; reserve data space in access ram
 b_hldr:ds 1
@@ -19,10 +20,11 @@ psect	Button_Interupt_code, class=CODE
 B_Int_Hi:; load end number into working function	
 	btfss	INT1IF		; check that this is timer0 interrupt
 	return  		; if not then return
-	incf PORTD
 	call Read_input
+	MOVFF b_hldr,PORTJ
 	call Button_Read
 	call Button_Action
+	call Record_Beat_Setup
 				;read by the other modules 
 
 	bcf	INT1IF		; clear interrupt flag
@@ -71,7 +73,10 @@ Button_Action:
     call b2_Action
     call b3_Action
     call b4_Action
-
+    call b5_Action
+    call b6_Action
+    call b7_Action
+    call b8_Action
     return
 b1_Action:
     movlw 0 
@@ -116,6 +121,28 @@ b4_Action:
     call UART_Transmit_Byte
     movlw 120
     call UART_Transmit_Byte
+    return
+b5_Action:
+    movlw 0 
+    cpfsgt b5
+    return
+    call Record_Beat_Setup
+    return
+b6_Action:
+    movlw 0 
+    cpfsgt b6
+    return
+    call Record_Output_Setup
+    return
+b7_Action:
+    movlw 0 
+    cpfsgt b7
+    return
+    return
+b8_Action:
+    movlw 0 
+    cpfsgt b8
+    return
     return
 	end
 
