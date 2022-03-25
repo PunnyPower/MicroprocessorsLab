@@ -1,5 +1,5 @@
 #include <xc.inc>
-global Button_Int_Setup,B_Int_Hi
+global Button_Int_Setup,B_Int_Hi,Button_Action,b1,b2,b3,b4,b5,b6,b7,b8
 extrn  UART_Transmit_Byte
 extrn  delay_ms
 extrn  Record_Beat_Setup,Record_Output_Setup
@@ -21,10 +21,9 @@ B_Int_Hi:; load end number into working function
 	btfss	INT1IF		; check that this is timer0 interrupt
 	return  		; if not then return
 	call Read_input
-	MOVFF b_hldr,PORTJ
 	call Button_Read
 	call Button_Action
-	call Record_Beat_Setup
+	
 				;read by the other modules 
 
 	bcf	INT1IF		; clear interrupt flag
