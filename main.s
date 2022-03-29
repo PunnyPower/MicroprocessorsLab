@@ -38,15 +38,13 @@ setup:
 	clrf	LATJ, A		; Clear PORTJ outputs
 	clrf	TRISD, A	; Set PORTD as all outputs
 	clrf	LATD, A		; Clear PORTD outputs
-	call Button_Int_Setup
+	call Button_Int_Setup	; calls the initalisation for input interupts
 	
 	
 
 
 start:	
-    ;call Record_Beat_Setup
-    ;call Record_Output_Setup
-    bra start
+
 	goto $	; Sit in infinite loop
 
 	end	rst

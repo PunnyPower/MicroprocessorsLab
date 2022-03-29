@@ -1,11 +1,13 @@
 #include <xc.inc>
 	
 global	Record_Output_Setup
+global	b1,b2,b3,b4,b5,b6,b7,b8
 extrn Record_Timer_Setup,Stop_Timer
 extrn	c1,c2,c3,c4,end_c2,end_c3,Count_Over
 extrn Beat_Length
+extrn Button_Action
 psect	udata_acs   ; reserve data space in access ram
-b_hldr:ds 1 ; var for tthe current button press
+b_hldr_output:ds 1 ; var for tthe current button press
 c3_hldr:ds 1
 c2_hldr:ds 1
 prev_c3_hldr:ds 1
@@ -27,8 +29,8 @@ Record_Output_Setup:
     return
     
 Read:
-    movff POSTINC1,b_hldr
-    movff POSTINC1,c3_hldr
+    movff POSTINC1,b_hldr_output ; reads data from ram and moves it to 
+    movff POSTINC1,c3_hldr  ;the correct locations 
     movff POSTINC1,c2_hldr
     movf prev_c3_hldr,W
     subwf c3_hldr,W
@@ -39,7 +41,9 @@ Read:
     movwf end_c2
     call Record_Timer_Setup ; starts counting 
     call Read_Loop	    ; initiates the check functions 
-    movff b_hldr,PORTD ; outputs results at correct time 
+    movff b_hldr_output,PORTD ; outputs results at correct time 
+    call Button_Read
+    call Button_Action
     dcfsnz Beat_Length
     return
     bra Read
@@ -58,7 +62,32 @@ Triple_return:
 	pop
         pop
 	return
-	
+Button_Read:
+	movlw 00000001B
+	andwf b_hldr_output, W
+	movwf b1
+	movlw 00000010B
+	andwf b_hldr_output, W
+	movwf b2
+	movlw 00000100B
+	andwf b_hldr_output, W
+	movwf b3
+	movlw 00001000B
+	andwf b_hldr_output, W
+	movwf b4
+	movlw 00010000B
+	andwf b_hldr_output, W
+	movwf b5
+	movlw 00100000B
+	andwf b_hldr_output, W
+	movwf b6
+	movlw 01000000B
+	andwf b_hldr_output, W
+	movwf b7
+	movlw 10000000B
+	andwf b_hldr_output, W
+	movwf b8
+	return	
 
 	end
 

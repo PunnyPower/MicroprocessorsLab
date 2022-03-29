@@ -30,7 +30,7 @@ Record_Int_Low:; load end number into working function
 Record_Timer_Setup:
 	movlw 0x00
 	movwf Count_Over
-	movlw	0xA0
+	movlw	0xA0 ; =  approx 10 microsec rollover   
 	movwf PR2
 	; =  approx 10 microsec rollover
 	movlw	00000100B	; Set timer2 to 16-bit, Fosc/4
@@ -45,8 +45,8 @@ Record_Timer_Setup:
  
 	call Record_Count_Up_Setup
 	return
-Stop_Timer:
-    clrf	T2CON, A	; =  approx 10 microsec rollover   
+Stop_Timer:  ;deactivates the interupt flag for the timer 
+    clrf	T2CON, A	
     movlw 0xff
     movwf Count_Over
     movff Count_Over , 0x20F
@@ -95,7 +95,7 @@ Count_Up_4:
     movwf c4
     return
     
-Check_End:
+Check_End:   ; checks to see if the timer is at its end value
     movf end_c3,W
     cpfseq c3
     return

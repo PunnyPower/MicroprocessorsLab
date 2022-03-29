@@ -5,7 +5,7 @@ global  Beat_Length
 extrn Record_Timer_Setup
 extrn c1,c2,c3,c4,end_c2,end_c3,Count_Over
 psect	udata_acs   ; reserve data space in access ram
-b_hldr:ds 1 ; var for tthe current button press
+b_hldr_beat:ds 1 ; var for tthe current button press
 prev_b: ds 1 ; var for previous button press
 check_hldr: ds 1 ; var that checks for unique button presses
 Beat_Length:ds 1 ; var for the length of a beat	  
@@ -26,7 +26,7 @@ Record_Beat_Setup:
     movwf end_c3
     movlw 0
     movwf end_c2    ; sets timer to count for 5 seconds 
-    movwf b_hldr
+    movwf b_hldr_beat
     movwf prev_b		; initialises button presses
     lfsr 0 ,Loop_Start_Location	    ; sets up the fsr0 with the beat location in memeory 
     ; sets up the variables 
@@ -48,31 +48,30 @@ Store_Press:	; stores beat and time stamp in memory
     incf Beat_Length
     return
 Unique_Input_Check:    ; uses an algorithum to check for unique button presses 
-    andwf b_hldr ,W; previous button presses needs to be in WREG
+    andwf b_hldr_beat ,W; previous button presses needs to be in WREG
     movwf check_hldr
     comf check_hldr ,W
-    andwf b_hldr, W
+    andwf b_hldr_beat, W
     movwf check_hldr
     movlw 0
     cpfsgt check_hldr
     call Double_return
     movf check_hldr,W
-    movff check_hldr ,PORTD
     call Store_Press
     return
     
     
 Record_Beat:
     comf PORTE,W
-    movwf b_hldr
+    movwf b_hldr_beat
     movlw 0x0F
-    andwf b_hldr,F ; only uses bottom 4 buttons for beat  
+    andwf b_hldr_beat,F ; only uses bottom 4 buttons for beat  
     
    
     movf prev_b ,W
     call Unique_Input_Check  ; checks for unique button presses
     call Check_End	    ; checks to see if the end timer var is set 
-    movff b_hldr,prev_b
+    movff b_hldr_beat,prev_b
     bra Record_Beat	    ; continues loop
 
     return

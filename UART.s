@@ -18,14 +18,7 @@ UART_Setup:
 					; must set TRISC6 to 1
     return
 
-UART_Transmit_Message:	    ; Message stored at FSR2, length stored in W
-    movwf   UART_counter, A
-UART_Loop_message:
-    movf    POSTINC2, W, A
-    call    UART_Transmit_Byte
-    decfsz  UART_counter, A
-    bra	    UART_Loop_message
-    return
+
 
 UART_Transmit_Byte:	    ; Transmits byte stored in W
     btfss   TX1IF	    ; TX1IF is set when TXREG1 is empty

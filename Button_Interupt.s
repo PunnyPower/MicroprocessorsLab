@@ -1,5 +1,6 @@
 #include <xc.inc>
-global Button_Int_Setup,B_Int_Hi,Button_Action,b1,b2,b3,b4,b5,b6,b7,b8
+global Button_Int_Setup,B_Int_Hi,Button_Action,Button_Action
+global b1,b2,b3,b4,b5,b6,b7,b8
 extrn  UART_Transmit_Byte
 extrn  delay_ms
 extrn  Record_Beat_Setup,Record_Output_Setup
@@ -23,6 +24,7 @@ B_Int_Hi:; load end number into working function
 	call Read_input
 	call Button_Read
 	call Button_Action
+	movff b_hldr ,PORTD
 	
 				;read by the other modules 
 
@@ -36,11 +38,13 @@ Button_Int_Setup:
 	bcf INTEDG1
 	bsf	GIE		; Enable all interrupts
 	return
-Read_input:
+Read_input:     ; reads port E when a button is pressed and compliments it
     comf PORTE,W
     movwf b_hldr
+    return
 
-Button_Read:
+Button_Read: ; splits the button combinations into 8 bytes to determine which
+	    ; button has been pressed
 	movlw 00000001B
 	andwf b_hldr, W
 	movwf b1
@@ -67,7 +71,8 @@ Button_Read:
 	movwf b8
 	return
 	
-Button_Action:
+Button_Action: ; depending on which button has been pressed this calls the right
+		; action 
     call b1_Action
     call b2_Action
     call b3_Action
@@ -78,7 +83,7 @@ Button_Action:
     call b8_Action
     return
 b1_Action:
-    movlw 0 
+    movlw 0   ; sees if button is active if not returns from subroutine
     cpfsgt b1
     return
     movlw 0x99
